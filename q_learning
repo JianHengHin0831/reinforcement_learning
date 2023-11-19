@@ -1,0 +1,58 @@
+import numpy as np
+
+# Define the environment (in this case, a simple 3x3 grid)
+num_states = 9
+num_actions = 4  # up, down, left, right
+
+# Define the reward structure of the environment
+rewards = np.array([
+    [-1, -1, -1],
+    [-1, 0, -1],
+    [-1, -1, 1]
+])
+
+
+# Initialize the Q-table with zeros
+Q = np.zeros((num_states, num_actions))
+
+# Set hyperparameters
+learning_rate = 0.8
+discount_factor = 0.9
+num_episodes = 1000
+max_steps = 100
+
+
+
+def move(state, action):
+    row, col = divmod(state, 3)  # Convert state to (row, column)
+    if action == 0:  # Up
+        row = max(0, row - 1)
+    elif action == 1:  # Down
+        row = min(2, row + 1)
+    elif action == 2:  # Left
+        col = max(0, col - 1)
+    elif action == 3:  # Right
+        col = min(2, col + 1)
+    return row * 3 + col  # Convert back to state index
+
+
+# Q-learning algorithm
+for episode in range(num_episodes):
+    state = np.random.randint(0, num_states)
+
+    for step in range(max_steps):
+        action = np.random.choice(np.where(Q[state] == np.max(Q[state]))[0])
+        new_state = move(state,action)  # Simulating movement in a grid
+
+        reward = rewards[new_state // 3, new_state % 3]
+
+        Q[state, action] = Q[state, action] + learning_rate * (reward + discount_factor * np.max(Q[new_state]) - Q[state, action])
+
+        state = new_state
+
+        if state == 8:  # Terminal state
+            break
+
+# The Q-table after learning
+print("Q-table:")
+print(Q)
