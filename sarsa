@@ -1,0 +1,51 @@
+import numpy as np
+
+# Define the number of states and actions
+num_states = 5
+num_actions = 2
+
+# Initialize the Q-table
+Q = np.zeros((num_states, num_actions))
+
+# Generate a simple environment with known rewards
+true_values = [0, 1, 2, 3, 4]
+
+# Function to take an action and return a reward
+def take_action(state, action):
+    if action == 0:  # Left action
+        return max(0, state - 1)
+    else:  # Right action
+        return min(4, state + 1)
+
+# SARSA learning algorithm
+num_episodes = 1000
+alpha = 0.1  # Learning rate
+gamma = 0.9  # Discount factor
+epsilon = 0.1  # Epsilon-greedy exploration parameter
+
+for episode in range(num_episodes):
+    state = np.random.choice(num_states)  # Start from a random state
+    action = np.random.choice(num_actions)  # Randomly choose an action
+
+    while True:
+        next_state = take_action(state, action)
+        reward = true_values[next_state]
+
+        # Choose the next action using epsilon-greedy policy
+        if np.random.rand() < epsilon:
+            next_action = np.random.choice(num_actions)
+        else:
+            next_action = np.argmax(Q[next_state])
+
+        # SARSA update
+        Q[state, action] += alpha * (reward + gamma * Q[next_state, next_action] - Q[state, action])
+
+        if next_state == 4:  # Terminal state reached
+            break
+
+        state = next_state
+        action = next_action
+
+# Display the learned Q-values
+print("Learned Q-values (SARSA):")
+print(Q)
