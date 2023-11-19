@@ -1,0 +1,43 @@
+import numpy as np
+
+# Define the number of states and actions
+num_states = 5
+num_actions = 2
+
+# Initialize the state-value function
+V = np.zeros(num_states) #Focus on state but not like q learning, focus on state&action
+
+# Generate a simple environment with known rewards
+true_values = [-100000, -10000, -1000, -100, 1000000]
+
+# Function to take an action and return a reward
+def take_action(state, action):
+    if action == 0:  # Left action
+        return max(0, state - 1)
+    else:  # Right action
+        return min(4, state + 1)
+
+# Temporal Difference (TD) learning algorithm
+num_episodes = 1000
+alpha = 0.1  # Learning rate
+gamma = 0.9  # Discount factor
+
+for episode in range(num_episodes):
+    state = np.random.choice(num_states)  # Start from a random state
+
+    while True:
+        action = np.random.choice(num_actions)  # Randomly choose an action
+
+        next_state = take_action(state, action)
+        reward = true_values[next_state]
+
+        # TD update
+        V[state] += alpha * (reward + gamma * V[next_state] - V[state])
+
+        if next_state == 4:  # Terminal state reached
+            break
+
+        state = next_state
+
+print("Learned State Values:")
+print(V)
